@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
+import sexy.fedora.gdxthing.core.Constants;
 
 public class Player extends Entity {
 
@@ -77,8 +78,8 @@ public class Player extends Entity {
         stateTime = 0;
         grounded = false;
         sprite = texture;
-        width = 32f;
-        height = 32f;
+        width = Constants.UNIT_SCALE * 32f;
+        height = Constants.UNIT_SCALE * 32f;
     }
 
     // Getters 'n' Setters
