@@ -1,13 +1,15 @@
 package sexy.fedora.gdxthing.screens;
 
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 import com.google.common.collect.Lists;
+import sexy.fedora.gdxthing.conf.Constants;
 import sexy.fedora.gdxthing.entities.Entity;
 import sexy.fedora.gdxthing.entities.Player;
 import sexy.fedora.gdxthing.core.GdxGame;
+import sexy.fedora.gdxthing.levels.Level;
 
 import java.util.List;
 
@@ -20,8 +22,7 @@ public class TestScreen extends AbstractScreen {
         super(game, levelName);
         entityList = Lists.newArrayList();
 
-        player = new Player(manager.get("testBlock.png", Texture.class));
-        player.setPosition(new Vector2(10f, 2f));
+        player = new Player(world);
         entityList.add(player);
     }
 
@@ -34,6 +35,9 @@ public class TestScreen extends AbstractScreen {
 
     @Override
     public void update(float dt) {
+        world.step(dt, 6, 2);
+        camera.position.set(player.getSprite().getX(), player.getSprite().getY(), 5f);
+
         for (Entity entity : entityList) {
             entity.update(dt);
         }

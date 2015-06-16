@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import sexy.fedora.gdxthing.core.Constants;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
+import sexy.fedora.gdxthing.conf.Constants;
 import sexy.fedora.gdxthing.core.GdxGame;
 import sexy.fedora.gdxthing.levels.Level;
 
@@ -15,16 +17,18 @@ public class AbstractScreen implements Screen {
 
     private GdxGame game;
     private OrthogonalTiledMapRenderer renderer;
-    private OrthographicCamera camera;
-    private Level level;
+    protected OrthographicCamera camera;
     private Batch spriteBatch;
     protected AssetManager manager;
+    protected World world;
+    private Level level;
 
     public AbstractScreen(GdxGame game, String levelName) {
         this.game = game;
-        level = new Level(levelName);
-        renderer = new OrthogonalTiledMapRenderer(level.getTiledMap(), Constants.UNIT_SCALE);
+        world = new World(new Vector2(0, Constants.GRAVITY), true);
+        level = new Level(levelName, world);
         manager = game.getManager();
+        renderer = new OrthogonalTiledMapRenderer(level.getTiledMap(), Constants.UNIT_SCALE);
 
         spriteBatch = renderer.getBatch();
 
@@ -43,12 +47,12 @@ public class AbstractScreen implements Screen {
         // Boilerplate clear and render
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        // Separate overridable update and draw methods
+        update(dt);
+
         camera.update();
         renderer.setView(camera);
         renderer.render();
-
-        // Separate overridable update and draw methods
-        update(dt);
 
         spriteBatch.begin();
         draw(spriteBatch, dt);

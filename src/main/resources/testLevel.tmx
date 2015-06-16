@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="test" tilewidth="32" tileheight="32">
+  <image source="testTilemap.png" width="64" height="64"/>
+ </tileset>
  <layer name="Tile Layer 1" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFgwkAAAGQAAE=
+   eJxjYmBgYBrFGJhlgDAAregBBQ==
   </data>
  </layer>
+ <objectgroup name="collisions" width="10" height="10">
+  <object x="1" y="223" width="317" height="96"/>
+ </objectgroup>
 </map>

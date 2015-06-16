@@ -1,11 +1,18 @@
 package sexy.fedora.gdxthing.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import sexy.fedora.gdxthing.core.Constants;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
+import sexy.fedora.gdxthing.conf.Constants;
+import sexy.fedora.gdxthing.conf.Options;
 
 public class Player extends Entity {
 
@@ -19,27 +26,68 @@ public class Player extends Entity {
     private float stateTime;
     private Vector2 position;
     private Vector2 velocity;
-    private float width;
-    private float height;
-    private Texture sprite;
+    private Texture texture;
+
+    private Sprite sprite;
+    private Body body;
+
+    public Player(World world) {
+        texture = new Texture("testBlock.png");
+        sprite = new Sprite(texture);
+        position = new Vector2();
+        velocity = new Vector2();
+        state = State.STANDING;
+        facingRight = true;
+        stateTime = 0;
+        grounded = false;
+        initPhysics(world);
+    }
+
+    private void initPhysics(World world) {
+        BodyDef def = new BodyDef();
+        def.type = BodyDef.BodyType.DynamicBody;
+        def.position.set(sprite.getX(), sprite.getY());
+        body = world.createBody(def);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(sprite.getWidth() / 2, sprite.getHeight() / 2);
+        FixtureDef fDef = new FixtureDef();
+        fDef.shape = shape;
+        fDef.density = 1f;
+        Fixture fixture = body.createFixture(fDef);
+        shape.dispose();
+    }
+
 
     @Override
     public void draw(Batch spriteBatch, float dt) {
-        spriteBatch.draw(sprite, position.x, position.y, width, height);
+        spriteBatch.draw(
+                texture,
+                sprite.getX(),
+                sprite.getY(),
+                sprite.getWidth() * Constants.UNIT_SCALE,
+                sprite.getHeight() * Constants.UNIT_SCALE
+        );
     }
 
     @Override
     public void update(float dt) {
+        handleInput(dt);
+        move(dt);
 
-        // Handle left/right
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        sprite.setPosition(body.getPosition().x, body.getPosition().y);
+    }
+
+    public void handleInput(float dt) {
+
+        if (Gdx.input.isKeyPressed(Options.LEFT)) {
             velocity.x = -MAX_VELOCITY;
             if (grounded) {
                 state = State.WALKING;
             }
             facingRight = false;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+
+        if (Gdx.input.isKeyPressed(Options.RIGHT)) {
             velocity.x = MAX_VELOCITY;
             if (grounded) {
                 state = State.WALKING;
@@ -47,16 +95,30 @@ public class Player extends Entity {
             facingRight = true;
         }
 
+        if (Gdx.input.isKeyPressed(Options.JUMP)) {
+            if (grounded) {
+                state = State.JUMPING;
+            }
+        }
+
+        if (Gdx.input.isKeyPressed(Options.INTERACT)) {
+
+        }
+
+    }
+
+    @Override
+    public void move(float dt) {
         // Clamp x velocity
         if (Math.abs(velocity.x) > MAX_VELOCITY) {
-			velocity.x = Math.signum(velocity.x) * MAX_VELOCITY;
-		}
+            velocity.x = Math.signum(velocity.x) * MAX_VELOCITY;
+        }
         if (Math.abs(velocity.x) < 1) {
-			velocity.x = 0;
-			if (grounded) {
+            velocity.x = 0;
+            if (grounded) {
                 state = State.STANDING;
-			}
-		}
+            }
+        }
 
         velocity.scl(dt);
         position.add(velocity);
@@ -67,93 +129,20 @@ public class Player extends Entity {
     public enum State {
         STANDING,
         WALKING,
-        JUMPING
-    }
-
-    public Player(Texture texture) {
-        position = new Vector2();
-        velocity = new Vector2();
-        state = State.STANDING;
-        facingRight = true;
-        stateTime = 0;
-        grounded = false;
-        sprite = texture;
-        width = Constants.UNIT_SCALE * 32f;
-        height = Constants.UNIT_SCALE * 32f;
+        JUMPING,
+        BUSY
     }
 
     // Getters 'n' Setters
 
-    public State getState() {
-        return state;
-    }
 
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    public boolean isFacingRight() {
-        return facingRight;
-    }
-
-    public void setFacingRight(boolean facingRight) {
-        this.facingRight = facingRight;
-    }
-
-    public boolean isGrounded() {
-        return grounded;
-    }
-
-    public void setGrounded(boolean grounded) {
-        this.grounded = grounded;
-    }
-
-    public float getStateTime() {
-        return stateTime;
-    }
-
-    public void setStateTime(float stateTime) {
-        this.stateTime = stateTime;
-    }
-
-    public Vector2 getPosition() {
-        return position;
-    }
-
-    public void setPosition(Vector2 position) {
-        this.position = position;
-    }
-
-    public Vector2 getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(Vector2 velocity) {
-        this.velocity = velocity;
-    }
-
-    public float getWidth() {
-        return width;
-    }
-
-    public void setWidth(float width) {
-        this.width = width;
-    }
-
-    public float getHeight() {
-        return height;
-    }
-
-    public void setHeight(float height) {
-        this.height = height;
-    }
-
-    public Texture getSprite() {
+    public Sprite getSprite() {
         return sprite;
     }
 
-    public void setSprite(Texture sprite) {
+    public void setSprite(Sprite sprite) {
         this.sprite = sprite;
     }
+
 
 }
