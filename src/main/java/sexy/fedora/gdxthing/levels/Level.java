@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.google.common.collect.Lists;
 import sexy.fedora.gdxthing.conf.Constants;
+import sexy.fedora.gdxthing.util.PhysicsUtil;
 
 import java.util.List;
 
@@ -32,29 +33,10 @@ public class Level {
         MapObjects objects = tiledMap.getLayers().get("collisions").getObjects();
 
         for (MapObject obj : objects) {
-            Shape shape;
-
-            shape = getRectangle((RectangleMapObject) obj);
-
-            BodyDef def = new BodyDef();
-            def.type = BodyDef.BodyType.StaticBody;
-            Body body = world.createBody(def);
-            body.createFixture(shape, 1);
-            list.add(body);
-            shape.dispose();
+            list.add(PhysicsUtil.createStaticRect(world, obj));
         }
 
         return list;
-    }
-
-    private PolygonShape getRectangle(RectangleMapObject rmo) {
-        float ppt = 32f;
-        Rectangle rect = rmo.getRectangle();
-        PolygonShape shape = new PolygonShape();
-        Vector2 size = new Vector2((rect.x + rect.width * Constants.UNIT_SCALE) / ppt,
-                                   (rect.y + rect.height * Constants.UNIT_SCALE) / ppt);
-        shape.setAsBox(rect.width * Constants.UNIT_SCALE / ppt, rect.height * Constants.UNIT_SCALE / ppt, size, 0f);
-        return shape;
     }
 
     public TiledMap getTiledMap() {

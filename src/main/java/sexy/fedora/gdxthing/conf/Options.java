@@ -8,5 +8,6 @@ public class Options {
     public static final int LEFT = Input.Keys.A;
     public static final int RIGHT = Input.Keys.D;
     public static final int INTERACT = Input.Keys.E;
+    public static final boolean DEBUG = true;
 
 }

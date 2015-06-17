@@ -6,13 +6,9 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import sexy.fedora.gdxthing.conf.Constants;
 import sexy.fedora.gdxthing.conf.Options;
+import sexy.fedora.gdxthing.util.PhysicsUtil;
 
 public class Player extends Entity {
 
@@ -34,7 +30,7 @@ public class Player extends Entity {
     public Player(World world) {
         texture = new Texture("testBlock.png");
         sprite = new Sprite(texture);
-        position = new Vector2();
+        position = new Vector2(0f, 100f);
         velocity = new Vector2();
         state = State.STANDING;
         facingRight = true;
@@ -44,17 +40,13 @@ public class Player extends Entity {
     }
 
     private void initPhysics(World world) {
-        BodyDef def = new BodyDef();
-        def.type = BodyDef.BodyType.DynamicBody;
-        def.position.set(sprite.getX(), sprite.getY());
-        body = world.createBody(def);
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(sprite.getWidth() / 2, sprite.getHeight() / 2);
-        FixtureDef fDef = new FixtureDef();
-        fDef.shape = shape;
-        fDef.density = 1f;
-        Fixture fixture = body.createFixture(fDef);
-        shape.dispose();
+        body = PhysicsUtil.createDynamicBody(
+                world,
+                sprite.getWidth(),
+                sprite.getHeight(),
+                position.x,
+                position.y
+        );
     }
 
 
@@ -64,8 +56,8 @@ public class Player extends Entity {
                 texture,
                 sprite.getX(),
                 sprite.getY(),
-                sprite.getWidth() * Constants.UNIT_SCALE,
-                sprite.getHeight() * Constants.UNIT_SCALE
+                sprite.getWidth(),
+                sprite.getHeight()
         );
     }
 
