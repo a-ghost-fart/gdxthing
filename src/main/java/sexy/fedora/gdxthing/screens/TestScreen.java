@@ -31,7 +31,7 @@ public class TestScreen extends AbstractScreen {
     @Override
     public void update(float dt) {
         world.step(dt, 6, 2);
-        //camera.position.set(player.getSprite().getX(), player.getSprite().getY(), 0);
+        camera.position.set(player.getSprite().getX(), player.getSprite().getY(), 0);
 
         for (Entity entity : entityList) {
             entity.update(dt);

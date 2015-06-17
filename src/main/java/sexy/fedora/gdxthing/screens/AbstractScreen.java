@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import sexy.fedora.gdxthing.conf.Constants;
 import sexy.fedora.gdxthing.conf.Options;
 import sexy.fedora.gdxthing.core.GdxGame;
+import sexy.fedora.gdxthing.core.ListenerClass;
 import sexy.fedora.gdxthing.levels.Level;
 
 public class AbstractScreen implements Screen {
@@ -29,9 +30,10 @@ public class AbstractScreen implements Screen {
     public AbstractScreen(GdxGame game, String levelName) {
         this.game = game;
         world = new World(new Vector2(0, Constants.GRAVITY), true);
+        world.setContactListener(new ListenerClass());
         level = new Level(levelName, world);
         manager = game.getManager();
-        renderer = new OrthogonalTiledMapRenderer(level.getTiledMap(), 32f);
+        renderer = new OrthogonalTiledMapRenderer(level.getTiledMap(), 1 * Constants.UNIT_SCALE);
         debugRenderer = new Box2DDebugRenderer();
 
         spriteBatch = renderer.getBatch();
@@ -55,17 +57,17 @@ public class AbstractScreen implements Screen {
         update(dt);
 
         camera.update();
+        renderer.setView(camera);
+        renderer.render();
+
+        spriteBatch.begin();
+        draw(spriteBatch, dt);
+        spriteBatch.end();
 
         if (Options.DEBUG) {
             debugRenderer.render(world, camera.combined);
-        } else {
-            renderer.setView(camera);
-            renderer.render();
-
-            spriteBatch.begin();
-            draw(spriteBatch, dt);
-            spriteBatch.end();
         }
+
     }
 
     public void draw(Batch spriteBatch, float dt) {

@@ -7,13 +7,15 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import sexy.fedora.gdxthing.conf.Constants;
 import sexy.fedora.gdxthing.conf.Options;
 import sexy.fedora.gdxthing.util.PhysicsUtil;
 
 public class Player extends Entity {
 
     public static final float MAX_VELOCITY = 10f;
-    public static final float JUMP_VELOCITY = 40f;
+    public static final float MOVEMENT_SPEED = 0.80f;
+    public static final float JUMP_VELOCITY = 2f;
     public static final float DAMPING = 0.87f;
 
     private State state;
@@ -30,7 +32,7 @@ public class Player extends Entity {
     public Player(World world) {
         texture = new Texture("testBlock.png");
         sprite = new Sprite(texture);
-        position = new Vector2(0f, 100f);
+        position = new Vector2(10f, 20f);
         velocity = new Vector2();
         state = State.STANDING;
         facingRight = true;
@@ -54,10 +56,10 @@ public class Player extends Entity {
     public void draw(Batch spriteBatch, float dt) {
         spriteBatch.draw(
                 texture,
-                sprite.getX(),
-                sprite.getY(),
-                sprite.getWidth(),
-                sprite.getHeight()
+                sprite.getX() - ((sprite.getWidth() * Constants.UNIT_SCALE) / 2),
+                sprite.getY() - ((sprite.getHeight() * Constants.UNIT_SCALE) / 2),
+                sprite.getWidth() * Constants.UNIT_SCALE,
+                sprite.getHeight() * Constants.UNIT_SCALE
         );
     }
 
@@ -71,26 +73,16 @@ public class Player extends Entity {
 
     public void handleInput(float dt) {
 
-        if (Gdx.input.isKeyPressed(Options.LEFT)) {
-            velocity.x = -MAX_VELOCITY;
-            if (grounded) {
-                state = State.WALKING;
-            }
-            facingRight = false;
+        if (Gdx.input.isKeyPressed(Options.LEFT) && velocity.x > -MAX_VELOCITY) {
+            body.applyLinearImpulse(-MOVEMENT_SPEED, 0, position.x, position.y, true);
         }
 
-        if (Gdx.input.isKeyPressed(Options.RIGHT)) {
-            velocity.x = MAX_VELOCITY;
-            if (grounded) {
-                state = State.WALKING;
-            }
-            facingRight = true;
+        if (Gdx.input.isKeyPressed(Options.RIGHT) && velocity.x < MAX_VELOCITY) {
+            body.applyLinearImpulse(MOVEMENT_SPEED, 0, position.x, position.y, true);
         }
 
         if (Gdx.input.isKeyPressed(Options.JUMP)) {
-            if (grounded) {
-                state = State.JUMPING;
-            }
+            body.applyLinearImpulse(0, JUMP_VELOCITY, position.x, position.y, true);
         }
 
         if (Gdx.input.isKeyPressed(Options.INTERACT)) {
@@ -113,7 +105,7 @@ public class Player extends Entity {
         }
 
         velocity.scl(dt);
-        position.add(velocity);
+        body.getPosition().add(velocity);
         velocity.scl(1 / dt);
         velocity.x *= DAMPING;
     }

@@ -10,7 +10,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.sun.corba.se.impl.io.TypeMismatchException;
 import sexy.fedora.gdxthing.conf.Constants;
 
 public class PhysicsUtil {
@@ -19,9 +18,10 @@ public class PhysicsUtil {
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
         def.position.set(x, y);
+        def.fixedRotation = true;
         Body body = world.createBody(def);
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width, height);
+        shape.setAsBox(width / Constants.PPT, height / Constants.PPT);
         FixtureDef fDef = new FixtureDef();
         fDef.shape = shape;
         fDef.density = 1f;
@@ -30,7 +30,7 @@ public class PhysicsUtil {
         return body;
     }
 
-    public static Body createStaticRect(World world, MapObject obj) {
+    public static Body createStaticRect(final World world, final MapObject obj) {
         if (!(obj instanceof RectangleMapObject)) {
             throw new IllegalArgumentException("Object is not of type RectangleMapObject");
         }
@@ -42,13 +42,12 @@ public class PhysicsUtil {
         return body;
     }
 
-    private static PolygonShape getRectangle(RectangleMapObject rmo) {
-        float ppt = 32f;
+    private static PolygonShape getRectangle(final RectangleMapObject rmo) {
         Rectangle rect = rmo.getRectangle();
         PolygonShape shape = new PolygonShape();
-        Vector2 size = new Vector2((rect.x + rect.width) / ppt,
-                (rect.y + rect.height) / ppt);
-        shape.setAsBox(rect.width / ppt, rect.height / ppt, size, 0f);
+        Vector2 size = new Vector2((rect.x + rect.width) / Constants.PPT,
+                (rect.y + rect.height) / Constants.PPT);
+        shape.setAsBox(rect.width / Constants.PPT, rect.height / Constants.PPT, size, 0f);
         return shape;
     }
 
